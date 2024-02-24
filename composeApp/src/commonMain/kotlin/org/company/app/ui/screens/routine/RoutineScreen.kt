@@ -4,22 +4,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.core.screen.uniqueScreenKey
 
 data class RoutineScreen(
     val isNight: Boolean,
 ) : Screen {
-    override val key = uniqueScreenKey
+    override val key = if (isNight) "Night Routine" else "Morning Routine"
 
     @Composable
     override fun Content() {
         val screenModel = rememberScreenModel { RoutineScreenModel() }
 
-        RoutineContent()
+        RoutineContent(isNight = isNight)
     }
 
     @Composable
-    private fun RoutineContent() {
-        Text(text = "Routine")
+    private fun RoutineContent(isNight: Boolean) {
+        Text(text = key)
     }
 }
