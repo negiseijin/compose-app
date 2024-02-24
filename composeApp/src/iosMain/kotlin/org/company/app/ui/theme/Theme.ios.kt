@@ -1,4 +1,4 @@
-package org.company.app.theme
+package org.company.app.ui.theme
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -11,7 +11,7 @@ import platform.UIKit.setStatusBarStyle
 internal actual fun SystemAppearance(isDark: Boolean) {
     LaunchedEffect(isDark) {
         UIApplication.sharedApplication.setStatusBarStyle(
-            if (isDark) UIStatusBarStyleDarkContent else UIStatusBarStyleLightContent
+            if (isDark) UIStatusBarStyleDarkContent else UIStatusBarStyleLightContent,
         )
     }
 }

@@ -34,80 +34,104 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import org.company.app.theme.AppTheme
-import org.company.app.theme.LocalThemeIsDark
+import org.company.app.ui.theme.AppTheme
+import org.company.app.ui.theme.LocalThemeIsDark
 
 @Composable
-internal fun App() = AppTheme {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var passwordVisibility by remember { mutableStateOf(false) }
+internal fun App() =
+    AppTheme {
+        var email by remember { mutableStateOf("") }
+        var password by remember { mutableStateOf("") }
+        var passwordVisibility by remember { mutableStateOf(false) }
 
-    Column(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
-
-        Row(
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Login",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(16.dp)
-            )
-
-            Spacer(modifier = Modifier.weight(1.0f))
-
-            var isDark by LocalThemeIsDark.current
-            IconButton(
-                onClick = { isDark = !isDark }
+        Column(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
             ) {
-                Icon(
-                    modifier = Modifier.padding(8.dp).size(20.dp),
-                    imageVector = if (isDark) Icons.Default.LightMode else Icons.Default.DarkMode,
-                    contentDescription = null
+                Text(
+                    text = "Login",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(16.dp),
                 )
-            }
-        }
 
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth().padding(16.dp)
-        )
+                Spacer(modifier = Modifier.weight(1.0f))
 
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            singleLine = true,
-            visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password
-            ),
-            trailingIcon = {
-                IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
-                    val imageVector = if (passwordVisibility) Icons.Default.Close else Icons.Default.Edit
-                    Icon(imageVector, contentDescription = if (passwordVisibility) "Hide password" else "Show password")
+                var isDark by LocalThemeIsDark.current
+                IconButton(
+                    onClick = { isDark = !isDark },
+                ) {
+                    Icon(
+                        modifier = Modifier.padding(8.dp).size(20.dp),
+                        imageVector =
+                            if (isDark) {
+                                Icons.Default.LightMode
+                            } else {
+                                Icons.Default.DarkMode
+                            },
+                        contentDescription = null,
+                    )
                 }
             }
-        )
 
-        Button(
-            onClick = { /* Handle login logic here */ },
-            modifier = Modifier.fillMaxWidth().padding(16.dp)
-        ) {
-            Text("Login")
-        }
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+            )
 
-        TextButton(
-            onClick = { openUrl("https://github.com/terrakok") },
-            modifier = Modifier.fillMaxWidth().padding(16.dp)
-        ) {
-            Text("Open github")
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Password") },
+                singleLine = true,
+                visualTransformation =
+                    if (passwordVisibility) {
+                        VisualTransformation.None
+                    } else {
+                        PasswordVisualTransformation()
+                    },
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                keyboardOptions =
+                    KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                    ),
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
+                        val imageVector =
+                            if (passwordVisibility) {
+                                Icons.Default.Close
+                            } else {
+                                Icons.Default.Edit
+                            }
+                        Icon(
+                            imageVector,
+                            contentDescription =
+                                if (passwordVisibility) {
+                                    "Hide password"
+                                } else {
+                                    "Show password"
+                                },
+                        )
+                    }
+                },
+            )
+
+            Button(
+                onClick = { /* Handle login logic here */ },
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+            ) {
+                Text("Login")
+            }
+
+            TextButton(
+                onClick = { openUrl("https://github.com/terrakok") },
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+            ) {
+                Text("Open github")
+            }
         }
     }
-}
 
 internal expect fun openUrl(url: String?)

@@ -1,4 +1,4 @@
-package org.company.app.theme
+package org.company.app.ui.theme
 
 import android.app.Activity
 import android.graphics.Color
