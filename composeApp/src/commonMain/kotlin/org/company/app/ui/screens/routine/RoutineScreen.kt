@@ -95,46 +95,50 @@ data class RoutineScreen(
                 ) { index ->
                     val item = response.payload.timeState[index]
 
-                    TimeRow(
+                    val onConfirm: (TimePickerState) -> Unit = { newTimePickerState ->
+                        val newTimeState =
+                            response.payload.timeState.map { timeState ->
+                                if (timeState.day == item.day) {
+                                    timeState.copy(
+                                        hour = newTimePickerState.hour,
+                                        minute = newTimePickerState.minute,
+                                    )
+                                } else {
+                                    timeState
+                                }
+                            }
+                        onUpdateState(
+                            response.payload.copy(
+                                timeState = newTimeState,
+                            ),
+                        )
+                    }
+
+                    val onCheckedChange: (Boolean) -> Unit = { newIsEnabled ->
+                        val newTimeState =
+                            response.payload.timeState.map { timeState ->
+                                if (timeState.day == item.day) {
+                                    timeState.copy(
+                                        isEnabled = newIsEnabled,
+                                    )
+                                } else {
+                                    timeState
+                                }
+                            }
+                        onUpdateState(
+                            response.payload.copy(
+                                timeState = newTimeState,
+                            ),
+                        )
+                    }
+
+                    TimeItemRow(
                         day = item.day,
                         hour = item.hour,
                         minute = item.minute,
                         isEnabled = item.isEnabled,
-                        onConfirm = { newTimePickerState ->
-                            val newTimeState =
-                                response.payload.timeState.map { timeState ->
-                                    if (timeState.day == item.day) {
-                                        timeState.copy(
-                                            hour = newTimePickerState.hour,
-                                            minute = newTimePickerState.minute,
-                                        )
-                                    } else {
-                                        timeState
-                                    }
-                                }
-                            onUpdateState(
-                                response.payload.copy(
-                                    timeState = newTimeState,
-                                ),
-                            )
-                        },
-                        onCheckedChange = { newIsEnabled ->
-                            val newTimeState =
-                                response.payload.timeState.map { timeState ->
-                                    if (timeState.day == item.day) {
-                                        timeState.copy(
-                                            isEnabled = newIsEnabled,
-                                        )
-                                    } else {
-                                        timeState
-                                    }
-                                }
-                            onUpdateState(
-                                response.payload.copy(
-                                    timeState = newTimeState,
-                                ),
-                            )
-                        },
+                        onConfirm = onConfirm,
+                        onCheckedChange = onCheckedChange,
                     )
                 }
             }
@@ -142,7 +146,7 @@ data class RoutineScreen(
     }
 
     @Composable
-    private fun TimeRow(
+    private fun TimeItemRow(
         day: WeekDay,
         hour: Int,
         minute: Int,
@@ -165,16 +169,12 @@ data class RoutineScreen(
                         initialMinute = minute,
                         is24Hour = false,
                     ),
-                onConfirm = {
-                    onConfirm(it)
-                },
+                onConfirm = onConfirm,
             )
 
             Switch(
                 checked = isEnabled,
-                onCheckedChange = {
-                    onCheckedChange(it)
-                },
+                onCheckedChange = onCheckedChange,
             )
         }
     }
