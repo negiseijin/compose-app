@@ -100,6 +100,24 @@ data class RoutineScreen(
                         hour = item.hour,
                         minute = item.minute,
                         isEnabled = item.isEnabled,
+                        onConfirm = { newTimePickerState ->
+                            val newTimeState =
+                                response.payload.timeState.map { timeState ->
+                                    if (timeState.day == item.day) {
+                                        timeState.copy(
+                                            hour = newTimePickerState.hour,
+                                            minute = newTimePickerState.minute,
+                                        )
+                                    } else {
+                                        timeState
+                                    }
+                                }
+                            onUpdateState(
+                                response.payload.copy(
+                                    timeState = newTimeState,
+                                ),
+                            )
+                        },
                         onCheckedChange = { newIsEnabled ->
                             val newTimeState =
                                 response.payload.timeState.map { timeState ->
@@ -129,6 +147,7 @@ data class RoutineScreen(
         hour: Int,
         minute: Int,
         isEnabled: Boolean,
+        onConfirm: (TimePickerState) -> Unit,
         onCheckedChange: (Boolean) -> Unit,
         modifier: Modifier = Modifier,
     ) {
@@ -144,8 +163,11 @@ data class RoutineScreen(
                     TimePickerState(
                         initialHour = hour,
                         initialMinute = minute,
-                        is24Hour = true,
+                        is24Hour = false,
                     ),
+                onConfirm = {
+                    onConfirm(it)
+                },
             )
 
             Switch(

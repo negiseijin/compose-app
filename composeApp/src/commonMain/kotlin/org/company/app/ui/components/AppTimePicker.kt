@@ -16,11 +16,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerState
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,10 +37,12 @@ import androidx.compose.ui.window.DialogProperties
 fun AppTimePicker(
     timePickerState: TimePickerState,
     modifier: Modifier = Modifier,
+    onCancel: (() -> Unit)? = null,
+    onConfirm: ((TimePickerState) -> Unit)? = null,
 ) {
     var showTimePicker by remember { mutableStateOf(false) }
     val state =
-        rememberTimePickerState(
+        rememberCustomTimePickerState(
             initialHour = timePickerState.hour,
             initialMinute = timePickerState.minute,
             is24Hour = timePickerState.is24hour,
@@ -51,7 +54,7 @@ fun AppTimePicker(
             shape = MaterialTheme.shapes.medium,
         ) {
             Text(
-                text = "${state.hour}:${state.minute}",
+                text = "${state.timeState.hour}:${state.timeState.minute}",
                 style = MaterialTheme.typography.headlineMedium,
             )
         }
@@ -59,10 +62,28 @@ fun AppTimePicker(
 
     if (showTimePicker) {
         TimePickerDialog(
-            onCancel = { showTimePicker = false },
-            onConfirm = { showTimePicker = false },
+            onCancel = {
+                showTimePicker = false
+                state.pendingTimeState =
+                    TimePickerState(
+                        state.timeState.hour,
+                        state.timeState.minute,
+                        state.timeState.is24hour,
+                    )
+                onCancel?.invoke()
+            },
+            onConfirm = {
+                showTimePicker = false
+                state.timeState =
+                    TimePickerState(
+                        state.pendingTimeState.hour,
+                        state.pendingTimeState.minute,
+                        state.pendingTimeState.is24hour,
+                    )
+                onConfirm?.invoke(state.timeState)
+            },
         ) {
-            TimePicker(state = state)
+            TimePicker(state = state.pendingTimeState)
         }
     }
 }
@@ -131,5 +152,64 @@ fun TimePickerDialog(
                 }
             }
         }
+    }
+}
+
+private class CustomTimePickerState(
+    var timeState: TimePickerState,
+    var pendingTimeState: TimePickerState,
+) {
+    companion object {
+        /**
+         * The default [Saver] implementation for [CustomTimePickerState].
+         */
+        fun Saver(): Saver<CustomTimePickerState, *> =
+            Saver(
+                save = {
+                    listOf(
+                        it.timeState.hour,
+                        it.timeState.minute,
+                        it.timeState.is24hour,
+                    )
+                },
+                restore = { value ->
+                    CustomTimePickerState(
+                        TimePickerState(
+                            initialHour = value[0] as Int,
+                            initialMinute = value[1] as Int,
+                            is24Hour = value[2] as Boolean,
+                        ),
+                        TimePickerState(
+                            initialHour = value[0] as Int,
+                            initialMinute = value[1] as Int,
+                            is24Hour = value[2] as Boolean,
+                        ),
+                    )
+                },
+            )
+    }
+}
+
+@Composable
+private fun rememberCustomTimePickerState(
+    initialHour: Int = 0,
+    initialMinute: Int = 0,
+    is24Hour: Boolean = false,
+): CustomTimePickerState {
+    return rememberSaveable(
+        saver = CustomTimePickerState.Saver(),
+    ) {
+        CustomTimePickerState(
+            TimePickerState(
+                initialHour = initialHour,
+                initialMinute = initialMinute,
+                is24Hour = is24Hour,
+            ),
+            TimePickerState(
+                initialHour = initialHour,
+                initialMinute = initialMinute,
+                is24Hour = is24Hour,
+            ),
+        )
     }
 }
