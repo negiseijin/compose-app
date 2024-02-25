@@ -14,7 +14,7 @@ sealed class RoutineUiState {
 
 data class Payload(
     val isEnabled: Boolean = false,
-    val timeState: TimeState,
+    val timeState: List<TimeState>,
 )
 
 data class TimeState(

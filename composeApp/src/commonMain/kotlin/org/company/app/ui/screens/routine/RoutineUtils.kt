@@ -6,8 +6,36 @@ internal object RoutineUtils {
     fun dummyData(): Payload {
         return Payload(
             timeState =
-                TimeState(
-                    day = WeekDay.SUNDAY,
+                listOf(
+                    TimeState(
+                        day = WeekDay.SUNDAY,
+                    ),
+                    TimeState(
+                        day = WeekDay.MONDAY,
+                        hour = (0..11).random(),
+                        minute = (0..59).random(),
+                        isEnabled = true,
+                    ),
+                    TimeState(
+                        day = WeekDay.TUESDAY,
+                        hour = (0..11).random(),
+                        minute = (0..59).random(),
+                    ),
+                    TimeState(
+                        day = WeekDay.WEDNESDAY,
+                        hour = (0..11).random(),
+                        minute = (0..59).random(),
+                        isEnabled = true,
+                    ),
+                    TimeState(
+                        day = WeekDay.THURSDAY,
+                    ),
+                    TimeState(
+                        day = WeekDay.FRIDAY,
+                    ),
+                    TimeState(
+                        day = WeekDay.SATURDAY,
+                    ),
                 ),
         )
     }

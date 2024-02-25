@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -22,6 +23,7 @@ import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import io.ktor.util.date.WeekDay
 import org.company.app.ui.components.AppTimePicker
 import org.company.app.ui.components.Progress
 
@@ -87,37 +89,71 @@ data class RoutineScreen(
 
             Divider(modifier = modifier.padding(vertical = 8.dp))
 
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = modifier.fillMaxWidth(),
-            ) {
-                Text(text = RoutineUtils.getDayName(response.payload.timeState.day))
+            LazyColumn {
+                items(
+                    count = response.payload.timeState.size,
+                ) { index ->
+                    val item = response.payload.timeState[index]
 
-                AppTimePicker(
-                    timePickerState =
-                        TimePickerState(
-                            initialHour = response.payload.timeState.hour,
-                            initialMinute = response.payload.timeState.minute,
-                            is24Hour = true,
-                        ),
-                )
-
-                Switch(
-                    checked = response.payload.timeState.isEnabled,
-                    onCheckedChange = {
-                        val newState =
-                            response.payload.timeState.copy(
-                                isEnabled = it,
+                    TimeRow(
+                        day = item.day,
+                        hour = item.hour,
+                        minute = item.minute,
+                        isEnabled = item.isEnabled,
+                        onCheckedChange = { newIsEnabled ->
+                            val newTimeState =
+                                response.payload.timeState.map { timeState ->
+                                    if (timeState.day == item.day) {
+                                        timeState.copy(
+                                            isEnabled = newIsEnabled,
+                                        )
+                                    } else {
+                                        timeState
+                                    }
+                                }
+                            onUpdateState(
+                                response.payload.copy(
+                                    timeState = newTimeState,
+                                ),
                             )
-                        onUpdateState(
-                            response.payload.copy(
-                                timeState = newState,
-                            ),
-                        )
-                    },
-                )
+                        },
+                    )
+                }
             }
+        }
+    }
+
+    @Composable
+    private fun TimeRow(
+        day: WeekDay,
+        hour: Int,
+        minute: Int,
+        isEnabled: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+        modifier: Modifier = Modifier,
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier.fillMaxWidth(),
+        ) {
+            Text(text = RoutineUtils.getDayName(day))
+
+            AppTimePicker(
+                timePickerState =
+                    TimePickerState(
+                        initialHour = hour,
+                        initialMinute = minute,
+                        is24Hour = true,
+                    ),
+            )
+
+            Switch(
+                checked = isEnabled,
+                onCheckedChange = {
+                    onCheckedChange(it)
+                },
+            )
         }
     }
 }
