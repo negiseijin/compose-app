@@ -30,7 +30,7 @@ fun AppTopBar(
             Text(
                 text = title,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
             )
         },
         modifier = modifier,
